@@ -84,7 +84,16 @@ function showNotification(message) {
 
 
 chrome.notifications.onClicked.addListener(function(notificationId) {
-  chrome.notifications.clear(notificationId, function(wasCleared) {});
+  chrome.notifications.clear(notificationId, function(wasCleared) {
+    if(wasCleared) {
+      var index_cleared = showedNotifications.findIndex(function(showedNotification) {
+        return showedNotification.id == notificationId;
+      });
+      if(index_cleared > -1) {
+        showedNotifications.splice(index_cleared, 1);
+      }
+    }
+  });
 });
 chrome.notifications.onButtonClicked.addListener(function(notificationId, buttonIndex) {
   if(buttonIndex == 1) {
