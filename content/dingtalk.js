@@ -7,6 +7,8 @@ var class_selector_con_item_avatar_bgcolor = ".avatar-wrap .group-avatar .user-a
 var class_selector_con_item_avatar_text = ".avatar-wrap .group-avatar .avatar-text";
 var class_selector_con_item_avatar_img = ".avatar-wrap .group-avatar [style^='background-image: url(']";
 var class_selector_con_item_time = ".conv-item-content .time";
+var class_selector_con_item_read = ".conv-item-content .latest-msg span:not(.ng-hide) .conv-item-last-msg-read";
+var class_selector_con_item_unread = ".conv-item-content .latest-msg span:not(.ng-hide) .conv-item-last-msg-unread";
 var class_selector_con_item_lastmsg = ".conv-item-content .latest-msg span[ng-bind-html='convItem.conv.lastMessageContent|emoj']";
 var class_selector_con_item_lastmsg_emoji = ".conv-item-content .latest-msg span[ng-bind-html='convItem.conv.lastMessageContent|emoj'] .emoji";
 var time_wait_load_message = 5000;
@@ -45,6 +47,11 @@ var showNotificationDebounce = function() {
 
     var time = mutation.querySelector(class_selector_con_item_time).innerHTML;
 
+    var read_unread = mutation.querySelector(class_selector_con_item_read + "," + class_selector_con_item_unread);
+    if(read_unread) {
+      read_unread = read_unread.textContent;
+    }
+
     var lastmsg = mutation.querySelector(class_selector_con_item_lastmsg).innerHTML;
     if(mutation.querySelector(class_selector_con_item_lastmsg_emoji)) {
       var lastmsg_emoji = "";
@@ -57,6 +64,9 @@ var showNotificationDebounce = function() {
         }
       });
       lastmsg = lastmsg_emoji;
+    }
+    if(read_unread) {
+      lastmsg = read_unread + " " + lastmsg;
     }
 
     if(messages.every(function(msg) {return msg.name != name && (msg.time+msg.lastmsg) != (time+lastmsg)})) {
