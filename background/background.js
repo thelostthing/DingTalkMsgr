@@ -106,7 +106,7 @@ chrome.notifications.onButtonClicked.addListener(function(notificationId, button
           break;
         }
       }
-      chrome.windows.update(dingtalkTab.windowId, {focused: true, drawAttention: false})
+      chrome.windows.update(dingtalkTab.windowId, {focused: true, drawAttention: false});
       chrome.tabs.update(dingtalkTab.id, {active: true}, function(tab) {
         clearAllNotifications();
       });
@@ -132,7 +132,7 @@ function checkBrowserFocus() {
     if(!window.focused) {
       isDingTalkPageFocused = false;
     } else {
-      chrome.tabs.query({windowId: window.id, active: true}, function(tabs) {
+      chrome.tabs.query({windowId: window.id}, function(tabs) {
         var dingtalkTab;
         for(var i = 0, len = tabs.length; i < len; i ++) {
           if(regex_url_dingtalk.test(tabs[i].url)) {
@@ -141,16 +141,49 @@ function checkBrowserFocus() {
           }
         }
         if(dingtalkTab) {
-          isDingTalkPageFocused = true;
-          clearAllNotifications();
-        } else {
-          isDingTalkPageFocused = false;
+          if(dingtalkTab.active) {
+            isDingTalkPageFocused = true;
+            clearAllNotifications();
+            chrome.tabs.sendMessage(dingtalkTab.id, {mutation: "stop"});
+          } else {
+            isDingTalkPageFocused = false;
+            chrome.tabs.sendMessage(dingtalkTab.id, {mutation: "start"});
+          }
         }
-      })
+      });
     }
   })
 }
-setInterval(checkBrowserFocus, time_wait_check_foucus);
+var interval_check_foucus = setInterval(checkBrowserFocus, time_wait_check_foucus);
+// chrome.idle.setDetectionInterval(15);
+chrome.idle.onStateChanged.addListener(function(newState) {
+  if(newState == "locked") {
+    interval_check_foucus = clearInterval(interval_check_foucus);
+  } else {
+    if(!interval_check_foucus) {
+      interval_check_foucus = setInterval(checkBrowserFocus, time_wait_check_foucus);
+    }
+  }
+
+  chrome.tabs.query({}, function(tabs) {
+    var dingtalkTab;
+    for(var i = 0, len = tabs.length; i < len; i ++) {
+      if(regex_url_dingtalk.test(tabs[i].url)) {
+        dingtalkTab = tabs[i];
+        break;
+      }
+    }
+    if(dingtalkTab) {
+      if(newState == "locked") {
+        chrome.tabs.sendMessage(dingtalkTab.id, {mutation: "stop"});
+      } else {
+        chrome.tabs.sendMessage(dingtalkTab.id, {mutation: "start"});
+      }
+    }
+  });
+  
+})
+
 
 chrome.declarativeContent.onPageChanged.removeRules(undefined, function() {
   chrome.declarativeContent.onPageChanged.addRules([{

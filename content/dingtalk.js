@@ -30,6 +30,9 @@ var template_avatar_noimage =
 </svg>
 `;
 
+var mutation_monitor;
+var mutation_monitor_target;
+
 var showNotificationDebounce = function() {
   var timeout;
   var immediate = false;
@@ -151,7 +154,8 @@ function waitForElement() {
   })
 }
 function monitorElement(el) {
-  new MutationObserver(function(mutations, observer) {
+  mutation_monitor_target = el;
+  mutation_monitor = new MutationObserver(function(mutations, observer) {
     var filteredMutationContainers = new Set();
     mutations.forEach(function(mutation) {
       if(mutation.target.offsetParent && class_con_item.every(function(classname) {
@@ -164,10 +168,30 @@ function monitorElement(el) {
     filteredMutationContainers.forEach(function(container) {
       showNotificationDebounce(container);
     });
-  }).observe(el, {
-    childList: true,
-    subtree: true
-  })
+  });
+  monitorElementStart();
 }
+function monitorElementStart() {
+  if(mutation_monitor && mutation_monitor_target) {
+    mutation_monitor.observe(mutation_monitor_target, {
+      childList: true,
+      subtree: true
+    });
+  }
+}
+function monitorElementStop() {
+  if(mutation_monitor) {
+    mutation_monitor.disconnect();
+  }
+}
+chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+  if(request.mutation) {
+    if(request.mutation == "start") {
+      monitorElementStart();
+    } else if(request.mutation == "stop") {
+      monitorElementStop();
+    }
+  }
+});
 
 waitForElement();

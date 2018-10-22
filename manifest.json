@@ -9,6 +9,7 @@
     "declarativeContent",
     "tabs",
     "notifications",
+    "idle",
     "https://static.dingtalk.com/*"
   ],
   "background": {
