@@ -2,6 +2,9 @@ var id_container = "sub-menu-pannel";
 var class_con_item = ["list-item", "conv-item", "context-menu"];
 var class_selector_con_item = class_con_item.reduce(function(accu, current){return accu+"."+current},"")
 var class_selector_con_item_name = ".conv-item-content .name-wrap .name-title";
+var class_selector_con_item_name_icon_company = ".conv-item-content .name-wrap .icon-company"; // GROUP
+var class_selector_con_item_name_icon_dept_company = ".conv-item-content .name-wrap .icon-dept-company"; // DEPT
+var class_selector_con_item_name_icon_all_user_company = ".conv-item-content .name-wrap .icon-all-user-company"; // ALL
 var class_selector_con_item_avatar = ".avatar-wrap .group-avatar";
 var class_selector_con_item_avatar_bgcolor = ".avatar-wrap .group-avatar .user-avatar[style^='background-color:']";
 var class_selector_con_item_avatar_text = ".avatar-wrap .group-avatar .avatar-text";
@@ -31,6 +34,13 @@ var showNotificationDebounce = function() {
   var messages = [];
   var pushMessage = function(mutation) {
     var name = mutation.querySelector(class_selector_con_item_name).innerHTML;
+    if(mutation.querySelector(class_selector_con_item_name_icon_company)) {
+      name = name + " [GROUP]"
+    } else if(mutation.querySelector(class_selector_con_item_name_icon_dept_company)) {
+      name = name + " [DEPT]"
+    } else if(mutation.querySelector(class_selector_con_item_name_icon_all_user_company)) {
+      name = name + " [ALL]"
+    }
     
     var avatar = null;
     if(mutation.querySelector(class_selector_con_item_avatar_img)) {
