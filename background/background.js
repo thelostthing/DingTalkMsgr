@@ -155,7 +155,7 @@ function checkBrowserFocus() {
   })
 }
 var interval_check_foucus = setInterval(checkBrowserFocus, time_wait_check_foucus);
-// chrome.idle.setDetectionInterval(15);
+chrome.idle.setDetectionInterval(15);
 chrome.idle.onStateChanged.addListener(function(newState) {
   if(newState == "locked") {
     interval_check_foucus = clearInterval(interval_check_foucus);
