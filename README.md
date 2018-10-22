@@ -8,6 +8,7 @@ Unoffical Messager for [im.dingtalk](https://im.dingtalk.com/) , show all messag
 - Quick jump back to im.dingtalk
  
 # TODO
+- emoji in cov title
 - Fix chrome.notifications.update contextMessage position bug
 - Add to Chrome Web Store
 - Get messages from network directly 
