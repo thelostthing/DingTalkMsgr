@@ -2,6 +2,8 @@ var id_container = "sub-menu-pannel";
 var class_con_item = ["list-item", "conv-item", "context-menu"];
 var class_selector_con_item = class_con_item.reduce(function(accu, current){return accu+"."+current},"")
 var class_selector_con_item_name = ".conv-item-content .name-wrap .name-title";
+var class_selector_con_item_name_work_status = ".conv-item-content .name-wrap work-status span.work-status-inner";
+var class_selector_con_item_name_work_status_emoji = ".conv-item-content .name-wrap work-status span.work-status-inner .emoji";
 var class_selector_con_item_name_icon_company = ".conv-item-content .name-wrap .icon-company"; // GROUP
 var class_selector_con_item_name_icon_dept_company = ".conv-item-content .name-wrap .icon-dept-company"; // DEPT
 var class_selector_con_item_name_icon_all_user_company = ".conv-item-content .name-wrap .icon-all-user-company"; // ALL
@@ -40,6 +42,26 @@ var showNotificationDebounce = function() {
       name = name + " [DEPT]"
     } else if(mutation.querySelector(class_selector_con_item_name_icon_all_user_company)) {
       name = name + " [ALL]"
+    }
+    var work_status;
+    if(mutation.querySelector(class_selector_con_item_name_work_status)) {
+      work_status = mutation.querySelector(class_selector_con_item_name_work_status).innerHTML;
+
+      if(mutation.querySelector(class_selector_con_item_name_work_status_emoji)) {
+        var work_status_emoji = "";
+        var work_status_emoji_node = mutation.querySelector(class_selector_con_item_name_work_status).cloneNode(true);
+        work_status_emoji_node.childNodes.forEach(function(el) {
+          if(el.nodeName == "IMG" && el.classList.contains("emoji")) {
+            work_status_emoji += el.getAttribute("alt");
+          } else {
+            work_status_emoji += el.textContent;
+          }
+        });
+        work_status = work_status_emoji;
+      }
+    }
+    if(work_status) {
+      name = name + " " + work_status;
     }
     
     var avatar = null;
