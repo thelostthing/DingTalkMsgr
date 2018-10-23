@@ -131,8 +131,9 @@ function checkBrowserFocus() {
   chrome.windows.getLastFocused(function(window) {
     if(!window.focused) {
       isDingTalkPageFocused = false;
+      sendMessageToDingTalk({mutation: "start"});
     } else {
-      chrome.tabs.query({windowId: window.id}, function(tabs) {
+      chrome.tabs.query({windowId: window.id, active: true}, function(tabs) {
         var dingtalkTab;
         for(var i = 0, len = tabs.length; i < len; i ++) {
           if(regex_url_dingtalk.test(tabs[i].url)) {
@@ -141,14 +142,11 @@ function checkBrowserFocus() {
           }
         }
         if(dingtalkTab) {
-          if(dingtalkTab.active) {
-            isDingTalkPageFocused = true;
-            clearAllNotifications();
-            chrome.tabs.sendMessage(dingtalkTab.id, {mutation: "stop"});
-          } else {
-            isDingTalkPageFocused = false;
-            chrome.tabs.sendMessage(dingtalkTab.id, {mutation: "start"});
-          }
+          isDingTalkPageFocused = true;
+          sendMessageToDingTalk({mutation: "stop"});
+        } else {
+          isDingTalkPageFocused = false;
+          sendMessageToDingTalk({mutation: "start"});
         }
       });
     }
@@ -159,12 +157,17 @@ chrome.idle.setDetectionInterval(15);
 chrome.idle.onStateChanged.addListener(function(newState) {
   if(newState == "locked") {
     interval_check_foucus = clearInterval(interval_check_foucus);
+    sendMessageToDingTalk({mutation: "stop"});
   } else {
     if(!interval_check_foucus) {
       interval_check_foucus = setInterval(checkBrowserFocus, time_wait_check_foucus);
     }
+    sendMessageToDingTalk({mutation: "start"});
   }
 
+})
+
+function sendMessageToDingTalk(message) {
   chrome.tabs.query({}, function(tabs) {
     var dingtalkTab;
     for(var i = 0, len = tabs.length; i < len; i ++) {
@@ -174,16 +177,10 @@ chrome.idle.onStateChanged.addListener(function(newState) {
       }
     }
     if(dingtalkTab) {
-      if(newState == "locked") {
-        chrome.tabs.sendMessage(dingtalkTab.id, {mutation: "stop"});
-      } else {
-        chrome.tabs.sendMessage(dingtalkTab.id, {mutation: "start"});
-      }
+      chrome.tabs.sendMessage(dingtalkTab.id, message);
     }
   });
-  
-})
-
+}
 
 chrome.declarativeContent.onPageChanged.removeRules(undefined, function() {
   chrome.declarativeContent.onPageChanged.addRules([{
