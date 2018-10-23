@@ -144,6 +144,7 @@ function checkBrowserFocus() {
         if(dingtalkTab) {
           isDingTalkPageFocused = true;
           sendMessageToDingTalk({mutation: "stop"});
+          clearAllNotifications();
         } else {
           isDingTalkPageFocused = false;
           sendMessageToDingTalk({mutation: "start"});
