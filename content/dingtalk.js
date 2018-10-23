@@ -104,7 +104,7 @@ var showNotificationDebounce = function() {
       lastmsg = read_unread + " " + lastmsg;
     }
 
-    if(messages.every(function(msg) {return msg.name != name && (msg.time+msg.lastmsg) != (time+lastmsg)})) {
+    if(messages.every(function(msg) {return msg.name != name && msg.lastmsg != lastmsg})) {
       messages.push({name: name, avatar: avatar, time: time, lastmsg: lastmsg});
       return true;
     } else {
