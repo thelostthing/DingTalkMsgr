@@ -104,9 +104,9 @@ var showNotificationDebounce = function() {
       lastmsg = read_unread + " " + lastmsg;
     }
 
-    if(messages.every(function(msg) {return msg.name != name && msg.lastmsg != lastmsg})) {
+    if(messages.every(function(msg) {return msg.name != name && (msg.lastmsg + msg.time) != (lastmsg + time)})) {
       messages.push({name: name, avatar: avatar, time: time, lastmsg: lastmsg});
-      return true;
+      return true && messages.length > 1;
     } else {
       return false;
     }
@@ -119,13 +119,13 @@ var showNotificationDebounce = function() {
 
     var callNow = immediate && !timeout;
     if(callNow) {
-      showNotifications.call(context, messages);
+      showNotifications.call(context, messages.slice(0));
       messages.length = 0;
     }
     var later = function() {
       timeout = null;
       if(!immediate) {
-        showNotifications.call(context, messages);
+        showNotifications.call(context, messages.slice(0));
         messages.length = 0;
       }
     }
